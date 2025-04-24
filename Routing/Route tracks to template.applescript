@@ -1,13 +1,14 @@
 -- @description Route tracks to template
 -- @author Ben Smith
 -- @link bensmithsound.uk
--- @version 2.1
+-- @version 2.2
 -- @testedmacos 10.14.6
--- @testedqlab 4.6.10
+-- @testedqlab 4.0.8
 -- @about Routes the selected audio track/s the same as a selected template cue
 -- @separateprocess TRUE
 
 -- @changelog
+--   v2.2  + Agregate Route click tracks to channels, Route Soundcheck tracks to template, Set crosspoints to template and Set gangs to template to one script
 --   v2.1  + will now correctly route audio if it is ganged differently to the routing option
 --   v2.0  + moved common functions to external script
 --   v1.4  + works with videos as well
@@ -17,105 +18,140 @@
 --   v1.1  + takes number of output channels from the notes of cues, to streamline editing for new projects
 
 
--- USER DEFINED VARIABLES -----------------
+-- QLab Router Consolidado - Seleção de comportamento via menu dropdown
 
-try -- if global variables are given when this script is called by another, use those variables
+try
 	renameCues
 on error
-	set renameCues to false -- whether or not to append cues with the name of the chosen template
+	set renameCues to false
 end try
 
 try
 	variableCueListName
 on error
-	set variableCueListName to "Other scripts & utilities" -- cue list containing Script Variables
+	set variableCueListName to "Other scripts & utilities"
 end try
 
 try
 	templateCueListName
 on error
-	set templateCueListName to "Other scripts & utilities" -- cue list containing template cues
+	set templateCueListName to "Other scripts & utilities"
 end try
 
 try
 	templateGroupCueName
 on error
-	set templateGroupCueName to "Click track routing templates" -- group cue containing all template cues
+	set templateGroupCueName to "Click track routing templates"
 end try
 
----------- END OF USER DEFINED VARIABLES --
+-- Opções disponíveis
+set optionsList to {"Route Levels Gangs All", "Route Levels Skip Master", "Route Levels Skip Outputs", "Route Levels Skip Inputs + Master", "Route Levels Skip Crosspoints"}
+set selectedOptionList to choose from list optionsList with prompt "Selecione o tipo de roteamento:"
+if selectedOptionList is false then return
+set selectedOption to item 1 of selectedOptionList
 
+-- Flags de controle
+set skipMaster to false
+set skipInputs to false
+set skipOutputs to false
+set skipCrosspoints to false
 
--- VARIABLES FROM QLAB NOTES --------------
+if selectedOption is "Route Levels Skip Master" then
+	set skipMaster to true
+else if selectedOption is "Route Levels Skip Outputs" then
+	set skipOutputs to true
+else if selectedOption is "Route Levels Skip Inputs + Master" then
+	set skipInputs to true
+	set skipMaster to true
+else if selectedOption is "Route Levels Skip Crosspoints" then
+	set skipInputs to true
+end if
 
 tell application id "com.figure53.Qlab.4" to tell front workspace
-	set audioChannelCount to notes of (first cue of (first cue list whose q name is variableCueListName) whose q name is "Output channel count") -- total number of Qlab output
-end tell
-
------------------- END OF QLAB VARIABLES --
-
-
-property util : script "Applescript Utilities"
-
-
----- RUN SCRIPT ---------------------------
-
-tell application id "com.figure53.Qlab.4" to tell front workspace
 	
-	set containerList to (first cue list whose q name is templateCueListName)
+	set audioChannelCount to (notes of (first cue of (first cue list whose q name is variableCueListName) whose q name is "Output channel count")) as integer
+	set rowCount to (notes of (first cue of (first cue list whose q name is variableCueListName) whose q name is "Row count")) as integer
 	
-	set containerCue to first cue in containerList whose q name is templateGroupCueName
-	
-	set routingTemplates to (cues in containerCue)
-	set routingNames to {}
-	
-	repeat with eachCue in routingTemplates
-		set end of routingNames to (q name of eachCue)
+	set templateList to (first cue list whose q name is templateCueListName)
+	set templateGroupCue to first cue in templateList whose q name is templateGroupCueName
+	set availableTemplates to cues in templateGroupCue
+	set templateNames to {}
+	repeat with c in availableTemplates
+		set end of templateNames to (q name of c)
 	end repeat
 	
-	set whatTemplate to choose from list routingNames
-	if whatTemplate is false then
-		return
-	end if
-	
-	set whatTemplateCue to first cue in containerCue whose q name is whatTemplate
+	set selectedTemplateName to choose from list templateNames with prompt "Selecione o cue de TEMPLATE:"
+	if selectedTemplateName is false then return
+	set templateCue to first cue in templateGroupCue whose q name is selectedTemplateName
 	
 	set selectedCues to (selected as list)
-	
 	repeat with eachCue in selectedCues
-		
-		set cueType to q type of eachCue
-		if cueType is in {"Audio", "Video"} then
-			repeat with eachChannel from 1 to audioChannelCount
-				set eachGang to getGang eachCue row 0 column eachChannel
-				if eachGang is missing value then
-					set theLevel to getLevel whatTemplateCue row 0 column eachChannel
-					setLevel eachCue row 0 column eachChannel db theLevel
-				else
-					setGang eachCue row 0 column eachChannel gang ""
-					set theLevel to getLevel whatTemplateCue row 0 column eachChannel
-					setLevel eachCue row 0 column eachChannel db theLevel
-					setGang eachCue row 0 column eachChannel gang eachGang
-				end if
+		if q type of eachCue is in {"Audio", "Video"} then
+			
+			-- remover todos os gangs antes de aplicar os níveis
+			repeat with rowIndex from 0 to rowCount - 1
+				repeat with colIndex from 0 to audioChannelCount
+					try
+						setGang eachCue row rowIndex column colIndex gang ""
+					on error
+						-- ignorar
+					end try
+				end repeat
 			end repeat
+			
+			-- aplicar níveis conforme opção escolhida
+			repeat with rowIndex from 0 to rowCount - 1
+				repeat with colIndex from 0 to audioChannelCount
+					set skipLevel to false
+					
+					if skipMaster and rowIndex is equal to 0 and colIndex is equal to 0 then
+						set skipLevel to true
+					else if skipInputs and rowIndex ≥ 1 then
+						set skipLevel to true
+					else if skipOutputs and rowIndex is equal to 0 and colIndex ≥ 1 then
+						set skipLevel to true
+					else if skipInputs and rowIndex ≥ 1 then
+						set skipLevel to true
+					end if
+					
+					if not skipLevel then
+						try
+							set theLevel to getLevel templateCue row rowIndex column colIndex
+							setLevel eachCue row rowIndex column colIndex db theLevel
+						on error
+							-- ignorar
+						end try
+					end if
+				end repeat
+			end repeat
+			
+			-- aplicar gangs após os níveis
+			repeat with rowIndex from 0 to rowCount - 1
+				repeat with colIndex from 0 to audioChannelCount
+					try
+						set theGang to getGang templateCue row rowIndex column colIndex
+						if theGang is not missing value then
+							setGang eachCue row rowIndex column colIndex gang theGang
+						end if
+					on error
+						-- ignorar
+					end try
+				end repeat
+			end repeat
+			
+			-- renomeia se ativado
 			if renameCues is true then
-				my renameCue(eachCue, whatTemplate)
+				try
+					set oldName to q display name of eachCue
+					set text item delimiters to " | "
+					set baseName to text item 1 of oldName
+					set text item delimiters to ""
+					set newName to baseName & " | " & selectedTemplateName
+					set q name of eachCue to newName
+				on error
+					-- ignorar renomeação
+				end try
 			end if
 		end if
-		
 	end repeat
-	
 end tell
-
-
--- FUNCTIONS ------------------------------
-
-on renameCue(theCue, theTemplate)
-	tell application id "com.figure53.Qlab.4" to tell front workspace
-		set oldName to q display name of theCue
-		set oldNameList to util's splitString(oldName, " | ")
-		set oldName to item 1 of oldNameList
-		set newName to oldName & " | " & theTemplate
-		set q name of theCue to newName
-	end tell
-end renameCue
