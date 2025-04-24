@@ -1,219 +1,210 @@
 -- @description Import all script to user library
 -- @author Ben Smith
 -- @link bensmithsound.uk
--- @version 2.1
--- @testedmacos 10.14.6
--- @testedqlab 4.6.10
+-- @version 2.2
+-- @testedmacos 10.15.7
+-- @testedqlab 4.0.8
 -- @about Run this script in MacOS's "Script Editor" to import all scripts in a folder (including within subfolders) to the user's "Library/Script Libraries"
 -- @separateprocess TRUE
 
 -- @changelog
+--   v2.2  + fix compile all scripts from github, organize scripts inside folders.
 --   v2.1  + can install specific versions of the library from github, and notes the version if launched in Qlab.
 --   v2.0  + can now optionally import scripts directly from github
 --   v1.3  + add default location when choosing a folder
 --   v1.2  + creates "Script Libraries" folder if it doesn't already exist
 
 
--- USER DEFINED VARIABLES -----------------
+use AppleScript version "2.4" -- Yosemite (10.10) or later
+use framework "Foundation"
+use scripting additions
 
-set gitVersionToGet to "latest" -- latest, or a git version tag. If using an old file, set this to the version previously installed.
+property githubRepoURL : "https://github.com/bsmith96/Qlab-Scripts.git"
+property gitVersionToGet : "latest" -- "latest" or specific tag
 
+-- HFS path for Notes display
+property baseCompiledFolder : (path to library folder from user domain as text) & "Script Libraries:QLab:"
+-- POSIX path for file operations
+property posixBaseCompiledFolder : POSIX path of (path to library folder from user domain) & "Script Libraries/QLab/"
 
----------- END OF USER DEFINED VARIABLES --
+property totalCount : 0
+property successCount : 0
+property failCount : 0
+property failedFiles : {}
 
+-- 🧹 Reset counters
+on resetCounters()
+	set totalCount to 0
+	set successCount to 0
+	set failCount to 0
+	set failedFiles to {}
+end resetCounters
 
--- RUN SCRIPT -----------------------------
+-- 📁 Create folder (accepts HFS or POSIX)
+on makeFolder(pathStr)
+	-- Determine POSIX folder
+	if pathStr begins with "/" then
+		set posixFolder to pathStr
+	else
+		set posixFolder to POSIX path of pathStr
+	end if
+	-- Use NSFileManager
+	set fm to current application's NSFileManager's defaultManager()
+	set errRef to missing value
+	set ok to fm's createDirectoryAtPath:posixFolder withIntermediateDirectories:true attributes:(missing value) |error|:(errRef)
+	if not ok then
+		set errMsg to (errRef's localizedDescription() as text)
+		log "❌ Failed to create folder: " & pathStr & " — " & errMsg
+	end if
+end makeFolder
 
-set theMethod to button returned of (display dialog "Would you like to install from github, or from a local folder?" with title "Install from github?" buttons {"Github", "Local", "Cancel"} default button "Github")
+-- 🔍 Get base name, stripping extension
+on nameFromPath(pathStr)
+	set AppleScript's text item delimiters to "/"
+	set nameItems to text items of pathStr
+	set fileNameExt to item -1 of nameItems
+	set AppleScript's text item delimiters to ""
+	set AppleScript's text item delimiters to "."
+	set nameParts to text items of fileNameExt
+	if (count of nameParts) > 1 then
+		set baseName to (items 1 thru -2 of nameParts) as text
+	else
+		set baseName to fileNameExt
+	end if
+	set AppleScript's text item delimiters to ""
+	return baseName
+end nameFromPath
 
-global scriptFiles
-set scriptFiles to {}
-
--- Git clone the current master branch
-if theMethod is "Github" then
-	tell application "Finder"
-		set homeLocation to path to home folder
-		
-		if gitVersionToGet is "latest" then
-			set gitClone to "cd " & (POSIX path of homeLocation) & "&& git clone https://github.com/bsmith96/Qlab-Scripts.git qlab-scripts-temp"
-		else
-			set gitClone to "cd " & (POSIX path of homeLocation) & "&& git clone https://github.com/bsmith96/Qlab-Scripts.git qlab-scripts-temp -b " & gitVersionToGet & " --single-branch"
-		end if
-		
-		do shell script gitClone
-		
-		set scriptFolder to (POSIX path of homeLocation) & "qlab-scripts-temp"
-		set scriptFolder to (POSIX file scriptFolder) as alias
-		
-		-- Get version number for notes
-		set getGitVersion to "cd " & (POSIX path of scriptFolder) & "&& git describe --tags"
-		
-		set gitVersion to do shell script getGitVersion
-		
-	end tell
-end if
-
--- Get user input: folder to import
-if theMethod is "Local" then
-	tell application "Finder"
-		set currentPath to container of (path to me) as alias
-	end tell
+-- 📜 Compile one .applescript into .scpt, preserving relative tree
+on compileScript(sourcePath, baseSourceFolderPOSIX)
+	set fileName to nameFromPath(sourcePath)
+	set totalCount to totalCount + 1
 	
-	set scriptFolder to choose folder with prompt "Please select the folder containing scripts to import" default location currentPath
-end if
-findAllScripts(scriptFolder)
-
-tell application "Finder"
-	
-	repeat with eachScript in scriptFiles
-		set fileName to name of (info for (eachScript as alias) without size)
-		if fileName ends with ".applescript" then
-			set fileName to (characters 1 thru -(12 + 1) of fileName as string)
-		end if
-		
-		set rootPath to POSIX path of (scriptFolder as alias)
-		set originalPath to POSIX path of (eachScript as alias)
-		set pathInRoot to my trimLine(originalPath, rootPath, 0)
-		set pathInLibrary to my trimLine(pathInRoot, ".applescript", 1)
-		
-		try
-			set newRoot to (POSIX path of (path to library folder from user domain) & "Script Libraries/")
-			set testRoot to (POSIX file newRoot as alias)
-		on error
-			-- if folder doesn't exist
-			set rootFolderName to "Script Libraries"
-			set rootFolderPath to (POSIX path of (path to library folder from user domain))
-			set newRootFolder to make new folder at (POSIX file rootFolderPath as alias)
-			set name of newRootFolder to rootFolderName
-			set newRoot to (POSIX path of (path to library folder from user domain) & rootFolderName & "/")
-		end try
-		set newPath to newRoot & pathInRoot
-		set newPath to my trimLine(newPath, ".applescript", 1) & ".scpt"
-		
-		-- compile script
-		
-		set newFolder to my trimLine(newPath, fileName & ".scpt", 1)
-		log newFolder
-		try
-			set testFolder to (POSIX file newFolder as alias)
-		on error
-			-- if folder doesn't exist
-			set theFolderName to my trimLine(newFolder, newRoot, 0)
-			set theFolderPath to my splitString(theFolderName, "/")
-			repeat with eachFolder from 1 to ((count of theFolderPath) - 1)
-				try
-					set theFolder to make new folder at (POSIX file newRoot as alias)
-					set name of theFolder to (item eachFolder of theFolderPath) as string
-				on error
-					try
-						delete theFolder
-					end try
-				end try
-				set newRoot to newRoot & (item eachFolder of theFolderPath) & "/"
-			end repeat
-		end try
-		
-		set osaCommand to "osacompile -o \"" & newPath & "\" \"" & originalPath & "\""
-		log osaCommand
-		log pathInLibrary
-		
-		try
-			do shell script osaCommand
-		end try
-	end repeat
-	
-end tell
-
-
-if theMethod is "Github" then
-	tell application "Finder"
-		delete folder scriptFolder
-	end tell
-	
+	-- Compute POSIX-relative subfolder from baseSourceFolder
 	try
-		tell application id "com.figure53.Qlab.4" to tell front workspace
-			-- set q number of (last item of (selected as list)) to gitVersion
-			set installerCue to last item of (selected as list)
-			if q type of installerCue is "Script" then
-				set installerName to q display name of installerCue
-				set originalInstallerName to last item of my splitString(installerName, " | ")
-				set q name of installerCue to gitVersion & " installed | " & originalInstallerName
-			end if
-		end tell
+		-- strip trailing slash for sed prefix match
+		set baseNoSlash to baseSourceFolderPOSIX
+		if baseNoSlash ends with "/" then set baseNoSlash to text 1 thru -2 of baseNoSlash
+		set findCmd to "cd " & quoted form of baseSourceFolderPOSIX & " && dirname " & quoted form of sourcePath & " | sed 's|^" & baseNoSlash & "||;s|^/||'"
+		set relativePath to do shell script findCmd
+	on error
+		set relativePath to ""
 	end try
-end if
+	
+	-- Build full POSIX target folder
+	set compiledTargetPOSIX to posixBaseCompiledFolder
+	if relativePath is not "" then
+		set compiledTargetPOSIX to compiledTargetPOSIX & relativePath & "/"
+	end if
+	makeFolder(compiledTargetPOSIX)
+	
+	-- Compile to .scpt
+	set targetFilePOSIX to compiledTargetPOSIX & fileName & ".scpt"
+	set targetPathQuoted to quoted form of targetFilePOSIX
+	try
+		do shell script "/usr/bin/osacompile -o " & targetPathQuoted & " " & quoted form of sourcePath
+		set successCount to successCount + 1
+	on error errMsg
+		set failCount to failCount + 1
+		set end of failedFiles to fileName
+		log "❌ Compilation failed for " & fileName & ": " & errMsg
+	end try
+end compileScript
 
-display notification "Installation complete - all scripts have been compiled into the \"Script Libraries\" folder"
+-- 🔄 Recursively compile all .applescript, skipping .git directories
+on compileAllFrom(folderPathPOSIX)
+	set findCmd to "find " & quoted form of folderPathPOSIX & " -path '*/.git*' -prune -o -name '*.applescript' -print"
+	set scriptList to paragraphs of (do shell script findCmd)
+	repeat with scriptPath in scriptList
+		if scriptPath is not "" then my compileScript(scriptPath, folderPathPOSIX)
+	end repeat
+end compileAllFrom
 
-
--- FUNCTIONS ------------------------------
-
-on findAllScripts(theFolder)
-	tell application "Finder"
-		set allItems to every item of theFolder
+-- ▶️ Main
+try
+	delay 0.1
+	resetCounters()
+	
+	-- Choose source
+	set userChoice to button returned of (display dialog "Install from GitHub or local folder?" buttons {"GitHub", "Local", "Cancel"} default button "GitHub")
+	if userChoice is "Local" then
+		set sourceFolderPOSIX to POSIX path of (choose folder with prompt "Select folder containing AppleScript files:")
+	else if userChoice is "GitHub" then
+		-- Ensure git exists
+		try
+			do shell script "which git"
+		on error
+			display dialog "Git is not installed or not in PATH." buttons {"OK"} default button "OK"
+			error "Git not available"
+		end try
 		
-		repeat with eachItem in allItems
-			if kind of (info for (eachItem as alias) without size) is "folder" then
-				my findAllScripts(eachItem)
-			else
-				if name extension of (info for (eachItem as alias) without size) is "applescript" then
-					set end of scriptFiles to eachItem
-				end if
-			end if
-			
-		end repeat
-		
-	end tell
-end findAllScripts
-
-on trimLine(theText, trimChars, trimIndicator)
-	-- trimIndicator options:
-	-- 0 = beginning
-	-- 1 = end
-	-- 2 = both
-	
-	set x to the length of the trimChars
-	
-	
-	---- Trim beginning
-	
-	if the trimIndicator is in {0, 2} then
-		repeat while theText begins with the trimChars
-			try
-				set theText to characters (x + 1) thru -1 of theText as string
-			on error
-				-- if the text contains nothing but the trim characters
-				return ""
-			end try
-		end repeat
+		-- Clone repo
+		set tempClonePOSIX to POSIX path of (path to home folder) & "qlab-scripts-temp/"
+		do shell script "rm -rf " & quoted form of tempClonePOSIX
+		if gitVersionToGet is "latest" then
+			do shell script "git clone --depth 1 " & githubRepoURL & " " & quoted form of tempClonePOSIX
+		else
+			do shell script "git clone --branch " & gitVersionToGet & " --single-branch " & githubRepoURL & " " & quoted form of tempClonePOSIX
+		end if
+		set sourceFolderPOSIX to tempClonePOSIX
 	end if
 	
+	-- Prepare target
+	makeFolder(baseCompiledFolder)
+	display notification "🚀 Compiling QLab scripts…" with title "QLab Sync"
+	compileAllFrom(sourceFolderPOSIX)
 	
-	---- Trim ending
-	
-	if the trimIndicator is in {1, 2} then
-		repeat while theText ends with the trimChars
-			try
-				set theText to characters 1 thru -(x + 1) of theText as string
-			on error
-				-- if the text contains nothing but the trim characters
-				return ""
-			end try
-		end repeat
+	-- Git metadata: rename cue & update notes
+	if userChoice is "GitHub" then
+		try
+			set versionTag to do shell script "cd " & quoted form of sourceFolderPOSIX & " && git describe --tags"
+			tell application id "com.figure53.QLab.4"
+				tell front workspace
+					set sel to selected as list
+					if (count of sel) > 0 then
+						set lastCue to last item of sel
+						if q type of lastCue is "Script" then
+							-- Rename
+							set currentName to q display name of lastCue
+							if currentName contains "|" then
+								set AppleScript's text item delimiters to "|"
+								set currentName to last text item of currentName
+								set AppleScript's text item delimiters to ""
+							end if
+							set q name of lastCue to versionTag & " installed | " & currentName
+							-- Append notes
+							try
+								set oldNotes to notes of lastCue
+							on error
+								set oldNotes to ""
+							end try
+							set newNotes to "GitHub: " & githubRepoURL & return & "Install Dir: " & baseCompiledFolder & return & oldNotes
+							set notes of lastCue to newNotes
+						end if
+					end if
+				end tell
+			end tell
+		on error errMsg
+			log "⚠️ Could not rename cue or set notes: " & errMsg
+		end try
+		-- Clean temp
+		try
+			do shell script "rm -rf " & quoted form of sourceFolderPOSIX
+		on error
+			log "⚠️ Could not delete temp folder: " & sourceFolderPOSIX
+		end try
 	end if
 	
-	return theText
-end trimLine
-
-on splitString(theString, theDelimiter)
-	-- save delimiters to restore old settings
-	set oldDelimiters to AppleScript's text item delimiters
-	-- set delimiters to delimiter to be used
-	set AppleScript's text item delimiters to theDelimiter
-	-- create the array
-	set theArray to every text item of theString
-	-- restore old setting
-	set AppleScript's text item delimiters to oldDelimiters
-	-- return the array
-	return theArray
-end splitString
+	-- Final summary
+	set summaryMessage to "📦 Total: " & totalCount & return & "✔️ Success: " & successCount & return & "❌ Failed: " & failCount
+	if failCount > 0 then
+		set AppleScript's text item delimiters to " | "
+		set failedListStr to failedFiles as text
+		set AppleScript's text item delimiters to ""
+		display dialog summaryMessage & return & return & "Failed Files: " & failedListStr buttons {"OK"} default button "OK"
+	else
+		display notification summaryMessage with title "QLab Import Summary"
+	end if
+on error errMsg
+	display dialog "❌ Error during sync: " & errMsg buttons {"OK"} default button "OK"
+end try
