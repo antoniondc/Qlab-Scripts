@@ -1,0 +1,25 @@
+set actorlist to {"ANN", "BRIDGET", "CAZ"}
+set actor to (choose from list actorlist with title "VO Selector" with prompt "At this performance Cosette will be played by?") as string
+tell application id "com.figure53.QLab.4" to tell front workspace
+	
+	try
+		if actor = "ANN" then
+			start cue "9991"
+		else if actor = "BRIDGET" then
+			start cue "9992"
+		else if actor = "CAZ" then
+			start cue "9993"
+			
+		end if
+	end try
+	
+end tell
+
+
+--cue 9991 ANN
+-- /cue/*ANN/armed 1
+-- /cue/*BRIDGET/armed 0
+-- /cue/*CAZ/armed 0
+-- tell application id "com.figure53.QLab.4" to tell front workspace
+-- set q name of cue "CAST" to "ANN" & "  SELECTED"
+-- end tell
