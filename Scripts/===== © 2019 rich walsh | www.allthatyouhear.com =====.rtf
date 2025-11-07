@@ -1,0 +1,163 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;}
+{\colortbl;\red255\green255\blue255;\red179\green179\blue179;\red179\green179\blue179;}
+{\*\expandedcolortbl;;\csgenericrgb\c70000\c70000\c70000;\csgenericrgb\c70196\c70196\c70196;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "mailto:rich@allthatyouhear.com"}}{\fldrslt 
+\f0\fs20 \cf2 rich@allthatyouhear.com}}
+\f0\fs20 \cf2  | {\field{\*\fldinst{HYPERLINK "http://www.allthatyouhear.com"}}{\fldrslt www.allthatyouhear.com}} | Please attribute this work if you share it, and please report any bugs or issues you encounter\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 This version: 17/01/19\
+<<< Last tested with QLab 4.4.1 & Mac OS X 10.12.6 \'96\'a0except "Make a text file from cues" which has not yet been updated from QLab 4.1.6 >>>\
+\
+Thanks due to Figure 53, Gareth Fry, Mic Pool and the QLab forum\
+\
+VERSION HISTORY\
+\
+17/01/19	Various improvements in consistency and clarity (eg: macros that make cues now all listed in the same section); some minor bug fixes\
+\
+		CHANGED: the Passcode has been removed from this template as the improved nudging routines don\'92t work if there is a Passcode\
+		CHANGED: standby previous / next [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 < & \u8679 \u8963 \u8997 >] now use OSC \'96\'a0rather than MSC \'96\'a0and work on sequences, not cues
+\f0 \cf3  ###EXPERIMENTAL###\
+\
+		ADDED: "Add Start Cue below the selected cue with Pre Wait based on its elapsed time" [B]\
+\
+		IMPROVED:  "Nudge selected cue(s)" routines [^<, ^>, 
+\f1 \cf3 \uc0\u8679 \u8963 
+\f0 \cf3 <, 
+\f1 \cf3 \uc0\u8679 \u8963 
+\f0 \cf3 >] no longer reset Audio Cues to their starting levels\
+\
+		CORRECTION: "Set every cue to auto-load" does work on every cue!\
+\
+06/02/18	Various improvements in consistency and clarity; some minor innocuous bug fixes\
+\
+		ADDED: "Copy slice markers of selected Audio or Video Cue to the Clipboard as tab-delimited text" [
+\f1 \cf3 \uc0\u8679 \u8963 C
+\f0 \cf3 ]\
+\
+		ADDED: external helper files containing scripts best run outside of QLab:\
+			"Make a text file from cues" \'96 run from Script Editor, or place in ~/Library/Scripts/Applications/QLab and enable the Script Menu from Script Editor preferences\
+			"Make Group Cues from a text file" \'96\'a0droplet\
+\
+		IMPROVED: "Log event to file" [in "not on a hotkey" section] \'96 can now optionally log multiple workspaces to the same file ###EXPERIMENTAL###\
+\
+		REMOVED: "Position QLab" \'96 didn't work correctly with Retina screens; easier to do something bespoke when needed\
+\
+		FIXED: "Log event to file" [in "not on a hotkey" section] \'96 custom userLogsFolder did not in fact work ###EXPERIMENTAL###\
+\
+27/09/17	Initial release of conversion from v3 template (original v2 template started in September 2009)\
+\
+		CHANGED: a nominal subset of "favourite" macros have been moved to a cart to enable touchpad-style use ###EXPERIMENTAL###\
+		CHANGED: general bug fixes and improvements in consistency\
+		CHANGED: some scripts will detect if the selected cue(s) are in a cart and then not fire if it wouldn't make sense to do so (eg: if they need to make Group Cues, or put cues in an order)\
+\
+		CHANGED: Hotkey removed from "Set every cue to Auto-load"\
+		CHANGED: Hotkey for "Mark selected cue (or jump to previously marked cue)" changed to J (M no longer available)\
+		CHANGED: Hotkey for "Clear number of selected cue(s) that aren't directly in a cue list" changed to Y (O no longer available)\
+		CHANGED: Hotkey for "Add suffix to renumber selected cue(s)" to 
+\f1 \cf3 \uc0\u8963 
+\f0 \cf3 R (
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 R was inconsistent)\
+		CHANGED: Hotkey for "Switch to "Macros [List]"" changed to 
+\f1 \cf3 \uc0\u8679 \u8963 
+\f0 \cf3 O (
+\f1 \cf3 \uc0\u8963 
+\f0 \cf3 A no longer made sense) \'96 and 
+\f1 \cf3 \uc0\u8963 
+\f0 \cf3 O added for "Switch to "Macros Cart"\
+		CHANGED: Hotkey for "Force running Fade Cue(s) to completion" to 
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 K (
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 F was inconsistent)\
+		CHANGED: Hotkey for "Reveal selected cue's target in Finder" to 
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 R (
+\f1 \cf3 \uc0\u8963 R
+\f0 \cf3  was needed elsewhere)\
+		CHANGED: Hotkey for "Create Arm Cue targeting selected cue as previous cue" changed to 
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 A (can't use 
+\f1 \cf3 \uc0\u8679 
+\f0 \cf3  as a Hotkey for scripts that make cues\'85)\
+		CHANGED: Hotkey for "Create Disarm Cue targeting selected cue as next cue" changed to 
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 D (can't use 
+\f1 \cf3 \uc0\u8679 
+\f0 \cf3  as a Hotkey for scripts that make cues\'85)\
+		CHANGED: Hotkey for "Create 5s default fade in of selected Audio, Mic or Video Cue as next cue" changed to 
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 F (can't use 
+\f1 \cf3 \uc0\u8679 
+\f0 \cf3  as a Hotkey for scripts that make cues\'85)\
+		CHANGED: Hotkey for "Go ahead make MIDI" changed to 
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 M (
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 K was inconsistent, and can't use 
+\f1 \cf3 \uc0\u8679 
+\f0 \cf3  as a Hotkey for scripts that make cues\'85)\
+		CHANGED: Hotkey for "Add a crashable wait cue (5s); GO anyway" changed to 
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 W (^W was needed elsewhere)\
+\
+		CHANGED: "Set Post Wait(s) of selected Group Cue(s) to effective duration" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 G] \'96\'a0no longer acts on "Start all children simultaneously" groups as the script's functionality is now built-in for them\
+\
+		ADDED: "Set last slice of selected Audio or Video Cue(s) to infinite loop" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 8]\
+		ADDED: "Set colour of selected cue(s) to grey" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 0]\
+		ADDED: "Scan for files" [
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 S] \'96\'a0add new audio & video files from a watched folder to the "Watched" cue list, recreating the folder structure (also added ^W to switch to the cue list)\
+		ADDED: "Log event to file" [in "not on a hotkey" section]; example Start Cue in Scratch cue list ###EXPERIMENTAL###\
+\
+		IMPROVED: "Create 5s default fade IN of selected Audio, Mic or Video Cue as next cue" [^F & 
+\f1 \cf3 \uc0\u8963 \u8997 
+\f0 \cf3 F] \'96 will now also act on Video Cues\
+		IMPROVED: "Load selected cue(s) to a time you enter" [^L] \'96 you can now enter negative times to specify time remaining\
+		IMPROVED: "Reset name of selected cue(s)" [^N] \'96 can now mark looped cues\
+		IMPROVED: "Batch adjust selected" [
+\f1 \cf3 \uc0\u8679 \u8963 
+\f0 \cf3 J] \'96 now includes actions for Light Cues and an "act on ALL CUES in workspace" mode\
+		IMPROVED: "Update all instances of selected Audio Cue" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 G] \'96 now also propagates slices\
+\
+		REMOVED: "Batch adjust Continue Mode of selected cue(s)" [
+\f1 \cf3 \uc0\u8679 \u8963 
+\f0 \cf3 C] \'96 functionality now built-in\
+		REMOVED: "Gang copier (faders only)" [
+\f1 \cf3 \uc0\u8679 
+\f0 \cf3 ^V] \'96 functionality now built-in (Paste Cue Properties\'85)\
+		REMOVED: "Toggle arming of all MSC cues" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 M] \'96 functionality now built-in (Override Controls)\
+		REMOVED: "Create adjustable auto-follow" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 W] \'96 functionality now built-in (negative Post Waits)\
+\
+		FIXED: "Batch adjust selected" [
+\f1 \cf3 \uc0\u8679 \u8963 
+\f0 \cf3 J] \'96 
+\fs22 levels routine changed to use "/" rather than "\\", as was originally intended
+\fs20 \
+\
+KNOWN ISSUES\
+\
+\'95 Some protection has been added to prevent macros acting on cues within carts if the outcome won't make sense, although this hasn't been fully tested; also note that it is possible to keep adding cues to a cart even after the grid is full\
+\'95 "Convert selected Audio Cue's target to wav" [
+\f1 \cf3 \uc0\u8679 \u8963 \u8997 
+\f0 \cf3 C] can be quite slow when converting from Apple Lossless: be patient (it probably hasn't hung!)\
+\'95 Increasingly more of these macros are becoming redundant as the functionality gets built into QLab!\
+\
+All you have to do is follow the worms}
