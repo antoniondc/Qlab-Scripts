@@ -1,11 +1,13 @@
--- Example configuration for Move to Cut List
-set TARGET_LIST_NAME to "Cut List"
+-- Example configuration for Level Utility
+set LEVEL_DB to 0
+set LEVEL_MATRIX_LIST to {{0, 0}}
+set LEVEL_RELATIVE to true
+set LEVEL_PROMPT_DELTA to true
 
 
--- Inicializa as Utilities
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("Tools:Move to Cut List.scpt")
+run getScriptFromLibrary("Cue:Inspector:Audio Level:Set Level.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)
