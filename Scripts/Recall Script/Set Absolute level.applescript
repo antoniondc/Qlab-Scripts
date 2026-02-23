@@ -1,7 +1,7 @@
 -- Example configuration for Level Utility
-set LEVEL_DB to 0
+set LEVEL_DB to 10
 set LEVEL_MATRIX_LIST to {{0, 0}}
-set LEVEL_RELATIVE to false
+set RELATIVE_MODE to true
 set LEVEL_PROMPT_DELTA to false
 
 

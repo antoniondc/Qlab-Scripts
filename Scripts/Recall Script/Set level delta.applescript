@@ -1,8 +1,8 @@
 -- Example configuration for Level Utility
-set LEVEL_DB to 0
+set LEVEL_DB to 2.5
 set LEVEL_MATRIX_LIST to {{0, 0}}
-set LEVEL_RELATIVE to true
-set LEVEL_PROMPT_DELTA to true
+set RELATIVE_MODE to true
+set LEVEL_PROMPT_DELTA to false
 
 
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")

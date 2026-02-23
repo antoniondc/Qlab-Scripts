@@ -1,12 +1,13 @@
--- Example configuration for Switch List Cue
---set userCueList to ""
---set USER_CUE_LIST_INDEX to 1
---set PRESERVE_PLAYHEAD to true
+-- Example configuration for Level Utility
+set LEVEL_DB to -10
+set LEVEL_MATRIX_LIST to {{0, 0}}
+set RELATIVE_MODE to true
+set LEVEL_PROMPT_DELTA to false
 
 
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("View:Switch List Cue.scpt")
+run getScriptFromLibrary("Cue:Inspector:Audio Level:Set Level.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)

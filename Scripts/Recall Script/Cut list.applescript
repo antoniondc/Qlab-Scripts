@@ -1,5 +1,6 @@
 -- Example configuration for Move to Cut List
 set TARGET_LIST_NAME to "Cut List"
+set COLOR_NAME to "red"
 
 
 -- Inicializa as Utilities
