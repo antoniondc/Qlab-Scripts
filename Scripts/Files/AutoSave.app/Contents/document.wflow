@@ -51,7 +51,91 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>source</key>
-					<string>---------------------------------------------------------------------------------- 📄 Script metadata - QLab Auto Backup--------------------------------------------------------------------------------property SCRIPT_DESCRIPTION : "Creates an automatic backup of the current QLab workspace in a backup folder, keeping only the most recent X backups."property SCRIPT_AUTHOR : "Antonio Nunes"property SCRIPT_VERSION : "1.1"property SCRIPT_TESTEDQLAB : "4.7+"property SCRIPT_ABOUT : "Backup QLab workspace file with timestamp, prunes old backups. Unicode-safe, compatible with external volumes, handles names with accents and spaces."property SCRIPT_DATE : "2025-07-24"---------------------------------------------------------------------------------- ⚙️ USER CONFIGURATION--------------------------------------------------------------------------------property BACKUP_FOLDER_NAME : "backup" -- Name of backup folderproperty BACKUP_KEEP_LIMIT : 10 -- How many backups to keep---------------------------------------------------------------------------------- 🛠️ MAIN SCRIPT--------------------------------------------------------------------------------try	-- 1. Detect current workspace/project path	tell application id "com.figure53.QLab.4"		set theDoc to document 1		save theDoc -- 🟢 Salva o projeto antes do backup!		set wsPOSIX to path of theDoc	end tellon error	display dialog "Could not detect the project file path automatically. Please select the QLab project (.qlab4) manually." buttons {"OK"} default button "OK"	set wsFile to choose file with prompt "Select your current QLab project file (.qlab4):"	set wsPOSIX to POSIX path of wsFileend try-- 2. Parse folder, base name, extensionset wsFolder to do shell script "dirname " &amp; quoted form of wsPOSIXset wsFileName to do shell script "basename " &amp; quoted form of wsPOSIXset AppleScript's text item delimiters to "."set baseName to text 1 thru ((offset of "." in wsFileName) - 1) of wsFileNameset extName to last text item of wsFileNameset AppleScript's text item delimiters to ""-- 3. Prepare backup folderset backupFolder to wsFolder &amp; "/" &amp; BACKUP_FOLDER_NAME &amp; "/"do shell script "mkdir -p " &amp; quoted form of backupFolder-- 4. Timestamp and backup file pathset timeStamp to do shell script "date +%Y%m%d-%H%M%S"set backupFileName to baseName &amp; "_" &amp; timeStamp &amp; "." &amp; extNameset backupFilePath to backupFolder &amp; backupFileName-- 5. Copy (backup) the project filedo shell script "cp -p " &amp; quoted form of wsPOSIX &amp; " " &amp; quoted form of backupFilePath---------------------------------------------------------------------------------- 🧹 Prune old backups (Finder, Unicode/accents safe)--------------------------------------------------------------------------------set backupFiles to {}tell application "Finder"	set backupFiles to files of folder (backupFolder as POSIX file) whose name starts with baseName &amp; "_" and name ends with "." &amp; extName	-- Sort files by creation date, newest last (so oldest first)	set backupFilesSorted to sort backupFiles by creation date	set numBackups to count of backupFilesSorted	if numBackups &gt; BACKUP_KEEP_LIMIT then		repeat with i from 1 to (numBackups - BACKUP_KEEP_LIMIT)			set oldBackup to item i of backupFilesSorted			try				delete oldBackup			end try		end repeat	end ifend tell---------------------------------------------------------------------------------- ✅ Notify user--------------------------------------------------------------------------------display notification "Backup created: " &amp; backupFileName &amp; " (Old backups pruned if necessary)" with title "QLab Auto Backup"---------------------------------------------------------------------------------- NOTES:-- - Backups are stored in a 'backup' folder next to your project file.-- - Script is Unicode-safe and works with external or network drives.-- - Keeps only the most recent BACKUP_KEEP_LIMIT backups.-- - No shell globbing: Finder handles all file matching for safety.-- - Adapt for other cues/templates as needed.--------------------------------------------------------------------------------</string>
+					<string>--------------------------------------------------------------------------------"com.figure53.Qlab.5"
+-- 📄 Script metadata - QLab Auto Backup
+--------------------------------------------------------------------------------
+property SCRIPT_DESCRIPTION : "Creates an automatic backup of the current QLab workspace in a backup folder, keeping only the most recent X backups."
+property SCRIPT_AUTHOR : "Antonio Nunes"
+property SCRIPT_VERSION : "1.1"
+property SCRIPT_TESTEDQLAB : "4.7+"
+property SCRIPT_ABOUT : "Backup QLab workspace file with timestamp, prunes old backups. Unicode-safe, compatible with external volumes, handles names with accents and spaces."
+property SCRIPT_DATE : "2025-07-24"
+
+--------------------------------------------------------------------------------
+-- ⚙️ USER CONFIGURATION
+--------------------------------------------------------------------------------
+property BACKUP_FOLDER_NAME : "backup" -- Name of backup folder
+property BACKUP_KEEP_LIMIT : 10 -- How many backups to keep
+
+--------------------------------------------------------------------------------
+-- 🛠️ MAIN SCRIPT
+--------------------------------------------------------------------------------
+try
+	-- 1. Detect current workspace/project path
+	tell application id "com.figure53.Qlab.5"
+		set theDoc to document 1
+		save theDoc -- 🟢 Salva o projeto antes do backup!
+		set wsPOSIX to path of theDoc
+	end tell
+on error
+	display dialog "Could not detect the project file path automatically. Please select the QLab project (.qlab4) manually." buttons {"OK"} default button "OK"
+	set wsFile to choose file with prompt "Select your current QLab project file (.qlab4):"
+	set wsPOSIX to POSIX path of wsFile
+end try
+
+-- 2. Parse folder, base name, extension
+set wsFolder to do shell script "dirname " &amp; quoted form of wsPOSIX
+set wsFileName to do shell script "basename " &amp; quoted form of wsPOSIX
+set AppleScript's text item delimiters to "."
+set baseName to text 1 thru ((offset of "." in wsFileName) - 1) of wsFileName
+set extName to last text item of wsFileName
+set AppleScript's text item delimiters to ""
+
+-- 3. Prepare backup folder
+set backupFolder to wsFolder &amp; "/" &amp; BACKUP_FOLDER_NAME &amp; "/"
+do shell script "mkdir -p " &amp; quoted form of backupFolder
+
+-- 4. Timestamp and backup file path
+set timeStamp to do shell script "date +%Y%m%d-%H%M%S"
+set backupFileName to baseName &amp; "_" &amp; timeStamp &amp; "." &amp; extName
+set backupFilePath to backupFolder &amp; backupFileName
+
+-- 5. Copy (backup) the project file
+do shell script "cp -p " &amp; quoted form of wsPOSIX &amp; " " &amp; quoted form of backupFilePath
+
+--------------------------------------------------------------------------------
+-- 🧹 Prune old backups (Finder, Unicode/accents safe)
+--------------------------------------------------------------------------------
+set backupFiles to {}
+tell application "Finder"
+	set backupFiles to files of folder (backupFolder as POSIX file) whose name starts with baseName &amp; "_" and name ends with "." &amp; extName
+	-- Sort files by creation date, newest last (so oldest first)
+	set backupFilesSorted to sort backupFiles by creation date
+	set numBackups to count of backupFilesSorted
+	if numBackups &gt; BACKUP_KEEP_LIMIT then
+		repeat with i from 1 to (numBackups - BACKUP_KEEP_LIMIT)
+			set oldBackup to item i of backupFilesSorted
+			try
+				delete oldBackup
+			end try
+		end repeat
+	end if
+end tell
+
+--------------------------------------------------------------------------------
+-- ✅ Notify user
+--------------------------------------------------------------------------------
+display notification "Backup created: " &amp; backupFileName &amp; " (Old backups pruned if necessary)" with title "QLab Auto Backup"
+
+--------------------------------------------------------------------------------
+-- NOTES:
+-- - Backups are stored in a 'backup' folder next to your project file.
+-- - Script is Unicode-safe and works with external or network drives.
+-- - Keeps only the most recent BACKUP_KEEP_LIMIT backups.
+-- - No shell globbing: Finder handles all file matching for safety.
+-- - Adapt for other cues/templates as needed.
+--------------------------------------------------------------------------------
+</string>
 				</dict>
 				<key>BundleIdentifier</key>
 				<string>com.apple.Automator.RunScript</string>
