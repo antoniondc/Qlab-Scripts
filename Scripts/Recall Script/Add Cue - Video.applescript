@@ -2,7 +2,7 @@
 -- Global Define - for Add Cue
 --------------------------------------------------------------------------------
 set TARGET_LIST_NAME to ""
---set CUE_TYPE to "start" -- "audio", "video", "start", "pause", "stop", "devamp", "fade"....
+set CUE_TYPE to "video" -- "audio", "video", "start", "pause", "stop", "devamp", "fade"....
 --set APPEND_TARGET_TO_NAME to true
 --set USE_DIRECT_SELECTION_TARGET to true
 --set ADD_CUE_POPUP to false

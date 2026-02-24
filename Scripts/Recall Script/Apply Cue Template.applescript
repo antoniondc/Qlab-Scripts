@@ -1,9 +1,10 @@
 --------------------------------------------------------------------------------
--- Level Normalization
+-- Apply Cue Template
 --------------------------------------------------------------------------------
-set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
---set REFERENCE_LEVEL to -24 -- Default LUFS reference
---AUTO_CONVERT_AUDIO to false
+set TARGET_LIST_NAME to "Script Files"
+--set TEMPLATE_GROUP_NAME to "Routing templates"
+--set TEMPLATE_NAME to "Default"
+--set TEMPLATE_POPUP to false
 
 
 --------------------------------------------------------------------------------
@@ -11,7 +12,7 @@ set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
 --------------------------------------------------------------------------------
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("Cue:Inspector:Audio Level:Level Normalize:Level Normalize.scpt")
+run getScriptFromLibrary("Cue:Inspector:Audio Level:Apply Cue Template.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)
@@ -21,6 +22,8 @@ end getScriptFromLibrary
 --------------------------------------------------------------------------------
 -- Script metadata
 --------------------------------------------------------------------------------
-property SCRIPT_DESCRIPTION : "Normalize all selected Audio cues to a reference LUFS, using a CLI loudness meter and fader correction. Make shure RMS t"
-property SCRIPT_AUTHOR : "Mic pool + Refatorado por Antonio"
-property SCRIPT_VERSION : "2024.3"
+property SCRIPT_DESCRIPTION : "Route selected cues to match a routing template"
+property SCRIPT_AUTHOR : "Antonio Nunes"
+property SCRIPT_VERSION : "3.7"
+property TESTED_MACOS : "10.14.6+"
+property TESTED_QLAB : "4.7+"

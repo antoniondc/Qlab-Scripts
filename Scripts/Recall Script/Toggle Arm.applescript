@@ -1,9 +1,11 @@
 --------------------------------------------------------------------------------
--- Level Normalization
+-- 📄 Script metadata - QLab Multi Toggle
 --------------------------------------------------------------------------------
-set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
---set REFERENCE_LEVEL to -24 -- Default LUFS reference
---AUTO_CONVERT_AUDIO to false
+set CUE_PROPERTY to "armed" -- "armed" | "flagged" | "autoload"
+set RELATIVE_MODE to false -- true/false
+--set MULTITOGGLE_POPUP to true -- true/false : if true, ask a search string before toggling
+--set MULTITOGGLE_EXACT_MATCH to true -- true/false : match exactly vs contains
+--set MULTITOGGLE_SCOPE_SELECTED_ONLY to  false -- true = só atua dentro da seleção atual, mesmo quando usar popup / false = pode buscar cues no workspace inteiro quando usar popup
 
 
 --------------------------------------------------------------------------------
@@ -11,7 +13,7 @@ set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
 --------------------------------------------------------------------------------
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("Cue:Inspector:Audio Level:Level Normalize:Level Normalize.scpt")
+run getScriptFromLibrary("Cue:Inspector:Basics:QLab Multi Toggle.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)
@@ -21,6 +23,6 @@ end getScriptFromLibrary
 --------------------------------------------------------------------------------
 -- Script metadata
 --------------------------------------------------------------------------------
-property SCRIPT_DESCRIPTION : "Normalize all selected Audio cues to a reference LUFS, using a CLI loudness meter and fader correction. Make shure RMS t"
-property SCRIPT_AUTHOR : "Mic pool + Refatorado por Antonio"
-property SCRIPT_VERSION : "2024.3"
+property SCRIPT_DESCRIPTION : "Toggle armed/flagged/autoload in batch. Works on current selection or by name match, supports relative or binary mode."
+property SCRIPT_AUTHOR : "Antonio Nunes"
+property SCRIPT_VERSION : "2024.10"

@@ -2,18 +2,18 @@
 -- Global Define - for Add Cue
 --------------------------------------------------------------------------------
 set TARGET_LIST_NAME to ""
---set CUE_TYPE to "start" -- "audio", "video", "start", "pause", "stop", "devamp", "fade"....
+set CUE_TYPE to "fade" -- "audio", "video", "start", "pause", "stop", "devamp", "fade"....
 --set APPEND_TARGET_TO_NAME to true
 --set USE_DIRECT_SELECTION_TARGET to true
 --set ADD_CUE_POPUP to false
 --set CREATE_LIST_IF_MISSING to false
 --set LEVEL_POPUP to true
---set LEVEL_DB to 0
---set LEVEL_MATRIX_LIST to {{0,0}} -- {{0,0},{1,0},{2,0}}
+set LEVEL_DB to -120
+set LEVEL_MATRIX_LIST to {{0,0}} -- {{0,0},{1,0},{2,0}}
 --set RELATIVE_MODE to true
---set FADE_DURATION to 6
+set FADE_DURATION to 6
 --set FADE_MODE to "relative" -- "relative", "absolute"
---set FADE_STOP_TARGET to true
+set FADE_STOP_TARGET to true
 --set FADE_POPUP to true
 --set SET_CUE_ARMED to false
 --set SET_CUE_CONTINUE to "continue" -- "continue", "follow", "do not continue"

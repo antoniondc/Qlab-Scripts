@@ -1,9 +1,8 @@
 --------------------------------------------------------------------------------
--- Level Normalization
+-- 📄 Script metadata - Move to Cut List
 --------------------------------------------------------------------------------
-set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
---set REFERENCE_LEVEL to -24 -- Default LUFS reference
---AUTO_CONVERT_AUDIO to false
+set TARGET_LIST_NAME to "Cut List"
+--set COLOR_NAME to "red"
 
 
 --------------------------------------------------------------------------------
@@ -11,7 +10,7 @@ set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
 --------------------------------------------------------------------------------
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("Cue:Inspector:Audio Level:Level Normalize:Level Normalize.scpt")
+run getScriptFromLibrary("Tools:Move to Cut List.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)
@@ -21,6 +20,6 @@ end getScriptFromLibrary
 --------------------------------------------------------------------------------
 -- Script metadata
 --------------------------------------------------------------------------------
-property SCRIPT_DESCRIPTION : "Normalize all selected Audio cues to a reference LUFS, using a CLI loudness meter and fader correction. Make shure RMS t"
-property SCRIPT_AUTHOR : "Mic pool + Refatorado por Antonio"
-property SCRIPT_VERSION : "2024.3"
+property SCRIPT_DESCRIPTION : "Move selected cues into a Cut List, disable triggers, prefix name/number, store metadata in notes, and allow restoring back to the original list."
+property SCRIPT_AUTHOR : "Antonio Nunes"
+property SCRIPT_VERSION : "5"

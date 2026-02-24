@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
--- Level Normalization
+-- Switch List Cue
 --------------------------------------------------------------------------------
-set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
---set REFERENCE_LEVEL to -24 -- Default LUFS reference
---AUTO_CONVERT_AUDIO to false
+set TARGET_LIST_NAME to ""
+set USER_CUE_LIST_INDEX to 5
+--set PRESERVE_PLAYHEAD to false
 
 
 --------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
 --------------------------------------------------------------------------------
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("Cue:Inspector:Audio Level:Level Normalize:Level Normalize.scpt")
+run getScriptFromLibrary("View:Switch List Cue.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)
@@ -21,6 +21,6 @@ end getScriptFromLibrary
 --------------------------------------------------------------------------------
 -- Script metadata
 --------------------------------------------------------------------------------
-property SCRIPT_DESCRIPTION : "Normalize all selected Audio cues to a reference LUFS, using a CLI loudness meter and fader correction. Make shure RMS t"
-property SCRIPT_AUTHOR : "Mic pool + Refatorado por Antonio"
-property SCRIPT_VERSION : "2024.3"
+property SCRIPT_DESCRIPTION : "Navigates to a cue list by name (if provided) or by index. Optionally preserves the playhead position."
+property SCRIPT_AUTHOR : "Antonio Nunes"
+property SCRIPT_VERSION : "1.1"

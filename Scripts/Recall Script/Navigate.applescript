@@ -1,9 +1,13 @@
 --------------------------------------------------------------------------------
--- Level Normalization
+-- Script metadata - Navigate Cues
 --------------------------------------------------------------------------------
-set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
---set REFERENCE_LEVEL to -24 -- Default LUFS reference
---AUTO_CONVERT_AUDIO to false
+--set USER_CUE_MODE to "SHARED" -- "SHARED", "BROKEN", "LOADED", "PAUSED", "RUNNING", "AUDIO", "VIDEO", "OUTPUT"
+--set NAVCUES_POPUP to false -- true = popup selection, false = direct navigation
+--set USER_DIRECTION to "previous" -- "forward" or "previous"
+--set USER_PRESELECT_CUE to false -- true = preselect next/previous cue in list
+--set USER_INCLUDE_INDIRECT_MEDIA to true
+--set USER_OUTPUT_COLUMN to 1 -- For "OUTPUT" mode only, 0 for "MASTER"
+--set USER_THRESH to -100 -- Output level threshold (dB)
 
 
 --------------------------------------------------------------------------------
@@ -11,7 +15,7 @@ set LEVEL_MATRIX_LIST to {{1, 0}, {2, 0}} -- {{0,0},{1,0},{2,0}}
 --------------------------------------------------------------------------------
 set utils to getScriptFromLibrary("Applescript Utilities.scpt")
 utils's initGlobals()
-run getScriptFromLibrary("Cue:Inspector:Audio Level:Level Normalize:Level Normalize.scpt")
+run getScriptFromLibrary("View:Navigate Cues.scpt")
 
 on getScriptFromLibrary(relativeSubPath)
 	return load script file ((path to library folder from user domain as text) & "Script Libraries:Qlab:" & relativeSubPath)
@@ -21,6 +25,6 @@ end getScriptFromLibrary
 --------------------------------------------------------------------------------
 -- Script metadata
 --------------------------------------------------------------------------------
-property SCRIPT_DESCRIPTION : "Normalize all selected Audio cues to a reference LUFS, using a CLI loudness meter and fader correction. Make shure RMS t"
-property SCRIPT_AUTHOR : "Mic pool + Refatorado por Antonio"
-property SCRIPT_VERSION : "2024.3"
+property SCRIPT_DESCRIPTION : "Navigate and select cues by state, output level, color, shared target, or shared media file."
+property SCRIPT_AUTHOR : "Antonio Nunes"
+property SCRIPT_VERSION : "3.6"
