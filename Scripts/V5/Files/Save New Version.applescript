@@ -1,4 +1,4 @@
--- @description Save new version"com.figure53.Qlab.5""com.figure53.Qlab.5""com.figure53.Qlab.5"
+-- @description Save new version
 -- @author Ben Smith
 -- @link bensmithsound.uk
 -- @version 3.0
